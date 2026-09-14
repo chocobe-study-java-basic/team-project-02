@@ -2,7 +2,7 @@
 name: Feature
 about: 기능 구현 템플릿 
 title: "[BE] "
-labels: enhancement
+labels: feature
 assignees: ""
 ---
 
