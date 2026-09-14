@@ -1,8 +1,8 @@
 ---
-name: ✨ Feature
-about: 새로운 기능을 구현합니다
+name: Feature
+about: 기능 구현 템플릿 
 title: "[BE] "
-labels: feature
+labels: enhancement
 assignees: ""
 ---
 
