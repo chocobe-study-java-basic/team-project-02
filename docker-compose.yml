@@ -20,29 +20,38 @@ services:
       timeout: 5s
       retries: 10
 
-  back:
-    build:
-      context: ./back
-      dockerfile: Dockerfile
-
-    container_name: budzet-back
-
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/budzet
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-
-    ports:
-      - "8080:8080"
-
-    volumes:
-      - ./back:/app
-      - gradle-cache:/root/.gradle
-
-    depends_on:
-      mysql:
-        condition: service_healthy
+#  back:
+#    build:
+#      context: ./back
+#      dockerfile: Dockerfile
+#
+#    container_name: budzet-back
+#
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/budzet
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
+#
+#    ports:
+#      - "8080:8080"
+#
+#    volumes:
+#      - ./back:/app
+#      - gradle-cache:/root/.gradle
+#
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./back/src
+#        - action: rebuild
+#          path: ./back/build.gradle
+#        - action: rebuild
+#          path: ./back/settings.gradle
 
 volumes:
   mysql-data:
-  gradle-cache:
+#  gradle-cache:
