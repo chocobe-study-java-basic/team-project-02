@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BudzetApplication {
 
     public static void main(String[] args) {
-        System.out.println("Javachip 입니다.");
         SpringApplication.run(BudzetApplication.class, args);
     }
 
