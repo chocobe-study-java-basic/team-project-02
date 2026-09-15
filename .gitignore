@@ -1,5 +1,9 @@
 # IntelliJ
-.idea
+.idea/
+*.iml
+
+# Gradle
+.gradle/
 
 # Agents
 AGENTS.md
