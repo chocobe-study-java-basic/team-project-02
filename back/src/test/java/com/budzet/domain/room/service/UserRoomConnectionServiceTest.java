@@ -9,8 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.budzet.domain.room.entity.UserRoomConnection;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.budzet.domain.room.dto.MemberResponse;
+import com.budzet.domain.room.entity.Authority;
+
+import java.util.List;
 
 import java.util.Optional;
 
@@ -55,5 +60,42 @@ class UserRoomConnectionServiceTest {
                 BusinessException.class,
                 () -> userRoomConnectionService.getConnection(1L, 1L)
         );
+    }
+
+    @Test
+    void getMembers_success() {
+
+        UserRoomConnection connection1 =
+                mock(UserRoomConnection.class);
+
+        UserRoomConnection connection2 =
+                mock(UserRoomConnection.class);
+
+        when(connection1.getUser()).thenReturn(mock(com.budzet.domain.user.entity.User.class));
+        when(connection2.getUser()).thenReturn(mock(com.budzet.domain.user.entity.User.class));
+
+        when(connection1.getUser().getId()).thenReturn(1L);
+        when(connection1.getUser().getName()).thenReturn("홍길동");
+        when(connection1.getAuthority()).thenReturn(Authority.OWNER);
+
+        when(connection2.getUser().getId()).thenReturn(2L);
+        when(connection2.getUser().getName()).thenReturn("김철수");
+        when(connection2.getAuthority()).thenReturn(Authority.MEMBER);
+
+        when(userRoomConnectionRepository.findAllByRoom_Id(1L))
+                .thenReturn(List.of(connection1, connection2));
+
+        List<MemberResponse> result =
+                userRoomConnectionService.getMembers(1L);
+
+        assertEquals(2, result.size());
+
+        assertEquals(1L, result.get(0).userId());
+        assertEquals("홍길동", result.get(0).name());
+        assertEquals(Authority.OWNER, result.get(0).authority());
+
+        assertEquals(2L, result.get(1).userId());
+        assertEquals("김철수", result.get(1).name());
+        assertEquals(Authority.MEMBER, result.get(1).authority());
     }
 }

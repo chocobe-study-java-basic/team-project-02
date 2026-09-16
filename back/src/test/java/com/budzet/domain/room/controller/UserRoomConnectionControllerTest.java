@@ -1,10 +1,13 @@
 package com.budzet.domain.room.controller;
 
+import com.budzet.domain.room.dto.MemberResponse;
 import com.budzet.domain.room.entity.Authority;
 import com.budzet.domain.room.entity.UserRoomConnection;
 import com.budzet.domain.room.service.UserRoomConnectionService;
 import com.budzet.global.api.ApiResponse;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -36,5 +39,32 @@ class UserRoomConnectionControllerTest {
         assertEquals(200, response.resultCode());
         assertEquals("멤버 권한 조회 성공", response.message());
         assertEquals("MEMBER", response.data());
+    }
+
+    @Test
+    void getMembers_success() {
+
+        UserRoomConnectionService service =
+                mock(UserRoomConnectionService.class);
+
+        UserRoomConnectionController controller =
+                new UserRoomConnectionController(service);
+
+        List<MemberResponse> members = List.of(
+                new MemberResponse(1L, "홍길동", Authority.OWNER),
+                new MemberResponse(2L, "김철수", Authority.MEMBER)
+        );
+
+        when(service.getMembers(1L))
+                .thenReturn(members);
+
+        ApiResponse<List<MemberResponse>> response =
+                controller.getMembers(1L);
+
+        assertEquals(200, response.resultCode());
+        assertEquals("멤버 목록 조회 성공", response.message());
+        assertEquals(2, response.data().size());
+        assertEquals("홍길동", response.data().get(0).name());
+        assertEquals(Authority.OWNER, response.data().get(0).authority());
     }
 }
