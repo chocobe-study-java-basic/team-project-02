@@ -8,6 +8,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class UserRoomConnectionId implements Serializable {
+
     private Long user;
     private Long room;
 }

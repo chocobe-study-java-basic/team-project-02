@@ -26,8 +26,9 @@ public class UserRoomConnection {
     @JoinColumn(name = "room_id")
     private Room room;
 
-    @Column(length = 20)
-    private String authority;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private Authority authority;
 
     private boolean joined;
 
