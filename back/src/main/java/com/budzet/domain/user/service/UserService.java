@@ -18,7 +18,7 @@ public class UserService {
 
     @Transactional
     public User join(String email, String password, String name) {
-        if(userRepository.findByEmail(email).isPresent()){
+        if(userRepository.existsByEmail(email)){
             throw new BusinessException(ErrorCode.USER_CONFLICT);
         }
 
