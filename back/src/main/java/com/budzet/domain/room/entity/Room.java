@@ -29,8 +29,9 @@ public class Room {
 
     private Long availableBudget;
 
-    @Column(length = 3)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 3, nullable = false)
+    private Currency currency;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -43,4 +44,15 @@ public class Room {
 
     @OneToMany(mappedBy = "room")
     private List<BudgetChange> budgetChanges = new ArrayList<>();
+
+    private Room(String name, Long totalBudget, Currency currency) {
+        this.name = name;
+        this.totalBudget = totalBudget;
+        this.availableBudget = totalBudget;
+        this.currency = currency;
+    }
+
+    public static Room create(String name, Long totalBudget, Currency currency) {
+        return new Room(name, totalBudget, currency);
+    }
 }
