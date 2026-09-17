@@ -25,7 +25,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             JOIN room.userConnections connection
             WHERE room.id = :roomId
               AND connection.user.id = :userId
-              AND connection.joined = true
             """)
     Optional<Room> findJoinedRoomByIdAndUserId(
             @Param("roomId") Long roomId,
