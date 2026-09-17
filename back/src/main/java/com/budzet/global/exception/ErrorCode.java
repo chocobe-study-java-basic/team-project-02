@@ -13,6 +13,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     CONFLICT(HttpStatus.CONFLICT, "요청이 현재 상태와 충돌합니다."),
+    USER_NOT_JOINED_ROOM(HttpStatus.FORBIDDEN, "사용자가 방에 속해있지 않습니다."),
+    REQUEST_AMOUNT_OVER_BUDGET(HttpStatus.BAD_REQUEST, "신청예산이 가용예산을 초과했습니다."),
     USER_CONFLICT(HttpStatus.CONFLICT, "이미 존재하는 회원입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
 
