@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -42,5 +43,13 @@ public class UserService {
 
     public String genAccessToken(User user){
         return authTokenService.genAccessToken(user);
+    }
+
+    public Map<String, Object> payloadOrNull(String accessToken) {
+        return authTokenService.payloadOrNull(accessToken);
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 }

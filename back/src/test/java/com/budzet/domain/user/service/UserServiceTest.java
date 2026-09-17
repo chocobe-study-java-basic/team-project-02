@@ -31,9 +31,6 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    @Mock
-    private AuthTokenService authTokenService;
-
     @Test
     @DisplayName("회원 가입 성공")
     void join_success() {
