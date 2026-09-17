@@ -5,6 +5,7 @@ import com.budzet.domain.room.entity.Authority;
 import com.budzet.domain.room.entity.UserRoomConnection;
 import com.budzet.domain.room.repository.UserRoomConnectionRepository;
 import com.budzet.global.exception.BusinessException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,7 +34,8 @@ class UserRoomConnectionServiceTest {
     @InjectMocks
     private UserRoomConnectionService userRoomConnectionService;
 
-    @Test // 멤버 객체 확인
+    @Test
+    @DisplayName("멤버 연결 조회 성공")
     void getConnection() {
 
         UserRoomConnection connection =
@@ -49,7 +51,8 @@ class UserRoomConnectionServiceTest {
         assertSame(connection, result);
     }
 
-    @Test // 존재하지 않는 멤버 예외처리
+    @Test
+    @DisplayName("존재하지 않는 멤버 연결 조회 시 예외 발생")
     void getConnection_memberNotFound() {
 
         when(userRoomConnectionRepository
@@ -66,6 +69,7 @@ class UserRoomConnectionServiceTest {
     }
 
     @Test
+    @DisplayName("모임 멤버 목록 조회 성공")
     void getMembers_success() {
 
         UserRoomConnection connection1 =
@@ -116,6 +120,7 @@ class UserRoomConnectionServiceTest {
     }
 
     @Test
+    @DisplayName("멤버 강퇴 성공")
     void kickMember_success() {
 
         UserRoomConnection connection =
@@ -132,6 +137,7 @@ class UserRoomConnectionServiceTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 멤버 강퇴 시 예외 발생")
     void kickMember_memberNotFound() {
 
         when(userRoomConnectionRepository
@@ -146,4 +152,40 @@ class UserRoomConnectionServiceTest {
         assertThat(exception.getErrorCode().getMessage())
                 .isEqualTo("멤버를 찾을 수 없습니다.");
     }
+
+    @Test
+    @DisplayName("모임 탈퇴 성공")
+    void leaveRoom_success() {
+
+        UserRoomConnection connection =
+                mock(UserRoomConnection.class);
+
+        when(userRoomConnectionRepository
+                .findByUser_IdAndRoom_Id(2L, 1L))
+                .thenReturn(Optional.of(connection));
+
+        userRoomConnectionService.leaveRoom(1L, 2L);
+
+        verify(userRoomConnectionRepository)
+                .delete(connection);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 멤버가 모임 탈퇴 시 예외 발생")
+    void leaveRoom_memberNotFound() {
+
+        when(userRoomConnectionRepository
+                .findByUser_IdAndRoom_Id(2L, 1L))
+                .thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> userRoomConnectionService.leaveRoom(1L, 2L)
+        );
+
+        assertThat(exception.getErrorCode().getMessage())
+                .isEqualTo("멤버를 찾을 수 없습니다.");
+    }
+
+
 }
