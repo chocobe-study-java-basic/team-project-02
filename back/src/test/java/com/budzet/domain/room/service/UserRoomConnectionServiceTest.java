@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.budzet.domain.room.dto.MemberResponse;
 import com.budzet.domain.room.entity.Authority;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
@@ -97,5 +98,33 @@ class UserRoomConnectionServiceTest {
         assertEquals(2L, result.get(1).userId());
         assertEquals("김철수", result.get(1).name());
         assertEquals(Authority.MEMBER, result.get(1).authority());
+    }
+
+    @Test
+    void kickMember_success() {
+
+        UserRoomConnection connection =
+                mock(UserRoomConnection.class);
+
+        when(userRoomConnectionRepository
+                .findByUser_IdAndRoom_Id(2L, 1L))
+                .thenReturn(Optional.of(connection));
+
+        userRoomConnectionService.kickMember(1L, 2L);
+
+        verify(userRoomConnectionRepository).delete(connection);
+    }
+
+    @Test
+    void kickMember_memberNotFound() {
+
+        when(userRoomConnectionRepository
+                .findByUser_IdAndRoom_Id(2L, 1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                BusinessException.class,
+                () -> userRoomConnectionService.kickMember(1L, 2L)
+        );
     }
 }

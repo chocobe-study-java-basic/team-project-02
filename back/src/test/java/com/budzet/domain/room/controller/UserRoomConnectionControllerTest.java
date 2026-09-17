@@ -6,6 +6,7 @@ import com.budzet.domain.room.entity.UserRoomConnection;
 import com.budzet.domain.room.service.UserRoomConnectionService;
 import com.budzet.global.api.ApiResponse;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
@@ -66,5 +67,20 @@ class UserRoomConnectionControllerTest {
         assertEquals(2, response.data().size());
         assertEquals("홍길동", response.data().get(0).name());
         assertEquals(Authority.OWNER, response.data().get(0).authority());
+    }
+
+    @Test //호출 확인
+    void kickMember_success() {
+
+        UserRoomConnectionService service =
+                mock(UserRoomConnectionService.class);
+
+        UserRoomConnectionController controller =
+                new UserRoomConnectionController(service);
+
+        controller.kickMember(1L, 2L);
+
+        verify(service)
+                .kickMember(1L, 2L);
     }
 }
