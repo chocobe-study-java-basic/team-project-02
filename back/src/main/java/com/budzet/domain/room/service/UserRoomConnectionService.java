@@ -31,4 +31,17 @@ public class UserRoomConnectionService {
                 .map(MemberResponse::from)
                 .toList();
     }
+
+    @Transactional
+    public void kickMember(Long roomId, Long userId) {
+
+        UserRoomConnection connection =
+                userRoomConnectionRepository
+                        .findByUser_IdAndRoom_Id(userId, roomId)
+                        .orElseThrow(() ->
+                                new BusinessException(ErrorCode.MEMBER_NOT_FOUND)
+                        );
+
+        userRoomConnectionRepository.delete(connection);
+    }
 }

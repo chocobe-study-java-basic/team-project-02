@@ -46,4 +46,18 @@ public class UserRoomConnectionController {
                 members
         );
     }
+
+    @DeleteMapping("/{roomId}/members/{userId}")
+    public ApiResponse<Void> kickMember(
+            @PathVariable Long roomId,
+            @PathVariable Long userId
+    ) {
+        userRoomConnectionService.kickMember(roomId, userId);
+
+        return ApiResponse.success(
+                HttpStatus.OK,
+                "멤버 강퇴 성공",
+                null
+        );
+    }
 }
