@@ -31,6 +31,9 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    @Mock
+    private AuthTokenService authTokenService;
+
     @Test
     @DisplayName("회원 가입 성공")
     void join_success() {
@@ -75,6 +78,49 @@ class UserServiceTest {
 
         assertEquals(
                 ErrorCode.USER_CONFLICT,
+                exception.getErrorCode()
+        );
+    }
+
+    @Test
+    @DisplayName("비밀번호 일치")
+    void checkPassword_success() {
+
+        String inputPassword = "password123";
+        String encodedPassword = "encodedPassword";
+
+        when(passwordEncoder.matches(inputPassword, encodedPassword))
+                .thenReturn(true);
+
+        userService.checkPassword(
+                inputPassword,
+                encodedPassword
+        );
+
+        verify(passwordEncoder)
+                .matches(inputPassword, encodedPassword);
+    }
+
+    @Test
+    @DisplayName("비밀번호 불일치")
+    void checkPassword_mismatch() {
+
+        String inputPassword = "wrongPassword";
+        String encodedPassword = "encodedPassword";
+
+        when(passwordEncoder.matches(inputPassword, encodedPassword))
+                .thenReturn(false);
+
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> userService.checkPassword(
+                        inputPassword,
+                        encodedPassword
+                )
+        );
+
+        assertEquals(
+                ErrorCode.PASSWORD_MISMATCH,
                 exception.getErrorCode()
         );
     }
