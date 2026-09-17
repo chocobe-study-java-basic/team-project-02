@@ -1,6 +1,8 @@
 package com.budzet.domain.room.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -8,10 +10,13 @@ import static org.mockito.Mockito.when;
 
 import com.budzet.domain.room.dto.RoomCreateRequest;
 import com.budzet.domain.room.dto.RoomCreateResponse;
+import com.budzet.domain.room.dto.RoomDetailResponse;
 import com.budzet.domain.room.dto.RoomListResponse;
 import com.budzet.domain.room.entity.Currency;
 import com.budzet.domain.room.entity.Room;
 import com.budzet.domain.room.repository.RoomRepository;
+import com.budzet.global.exception.BusinessException;
+import com.budzet.global.exception.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -80,5 +86,41 @@ class RoomServiceTest {
 
         verify(roomRepository).findAllJoinedRoomsByUserId(userId);
         assertTrue(response.rooms().isEmpty());
+    }
+
+    @Test
+    void getRoom_returnsJoinedRoomDetail() {
+        Long userId = 1L;
+        Long roomId = 10L;
+        Room room = Room.create("사진동아리", 100_000L, Currency.KRW);
+        when(roomRepository.findJoinedRoomByIdAndUserId(roomId, userId))
+                .thenReturn(Optional.of(room));
+
+        RoomDetailResponse response = roomService.getRoom(userId, roomId);
+
+        verify(roomRepository).findJoinedRoomByIdAndUserId(roomId, userId);
+
+        assertThat(response.name()).isEqualTo("사진동아리");
+        assertThat(response.totalBudget()).isEqualTo(100_000L);
+        assertThat(response.availableBudget()).isEqualTo(100_000L);
+        assertThat(response.currency()).isEqualTo("KRW");
+    }
+
+    @Test
+    void getRoom_throwsNotFoundExceptionWhenRoomIsNotJoinedByUser() {
+        Long userId = 1L;
+        Long roomId = 10L;
+        when(roomRepository.findJoinedRoomByIdAndUserId(roomId, userId))
+                .thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> roomService.getRoom(userId, roomId)
+        );
+
+        verify(roomRepository).findJoinedRoomByIdAndUserId(roomId, userId);
+
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND);
+        assertThat(exception.getMessage()).isEqualTo("존재하지 않는 모임입니다.");
     }
 }
