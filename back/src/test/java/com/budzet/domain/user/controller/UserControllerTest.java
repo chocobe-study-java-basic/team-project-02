@@ -11,6 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -69,6 +72,18 @@ class UserControllerTest {
         UserController controller =
                 new UserController(service, rq);
 
+        ReflectionTestUtils.setField(
+                controller,
+                "accessExpireMillis",
+                1000L
+        );
+
+        ReflectionTestUtils.setField(
+                controller,
+                "refreshExpireMillis",
+                2000L
+        );
+
         String email = "user1@test.com";
         String password = "password123";
         String accessToken = "testAccessToken";
@@ -114,10 +129,10 @@ class UserControllerTest {
         verify(service).login(email, password);
 
         verify(rq)
-                .addCookie("accessToken", accessToken);
+                .addCookie("accessToken", accessToken, Duration.ofMillis(1000L));
 
         verify(rq)
-                .addCookie("refreshToken", refreshToken);
+                .addCookie("refreshToken", refreshToken, Duration.ofMillis(2000L));
     }
 
     @Test
@@ -130,6 +145,18 @@ class UserControllerTest {
 
         UserController controller =
                 new UserController(service, rq);
+
+        ReflectionTestUtils.setField(
+                controller,
+                "accessExpireMillis",
+                1000L
+        );
+
+        ReflectionTestUtils.setField(
+                controller,
+                "refreshExpireMillis",
+                2000L
+        );
 
         String refreshToken = "oldRefreshToken";
         String newAccessToken = "newAccessToken";
@@ -179,10 +206,10 @@ class UserControllerTest {
                 .refresh(refreshToken);
 
         verify(rq)
-                .addCookie("accessToken", newAccessToken);
+                .addCookie("accessToken", newAccessToken, Duration.ofMillis(1000L));
 
         verify(rq)
-                .addCookie("refreshToken", newRefreshToken);
+                .addCookie("refreshToken", newRefreshToken, Duration.ofMillis(2000L));
     }
 
     @Test
