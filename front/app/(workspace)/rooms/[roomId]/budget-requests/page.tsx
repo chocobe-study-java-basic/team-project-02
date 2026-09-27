@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import {
+    cancelBudgetRequest,
     createBudgetRequest,
     getBudgetRequests,
     type BudgetRequest,
@@ -268,6 +269,8 @@ export default function BudgetRequestsPage() {
                                 key={request.id}
                                 request={request}
                                 currency={budget?.currency ?? "KRW"}
+                                roomId={roomId}
+                                onCanceled={loadData}
                             />
                         ))}
                     </div>
@@ -310,16 +313,52 @@ function BudgetCard({
 }
 
 function RequestItem({
-                         request,
-                         currency,
-                     }: {
+    request,
+    currency,
+    roomId,
+    onCanceled,
+}: {
     request: BudgetRequest;
     currency: "KRW" | "USD" | "JPY";
+    roomId: number;
+    onCanceled: () => Promise<void>;
 }) {
+    const [canceling, setCanceling] = useState(false);
+
+    const handleCancel = async () => {
+        if (!roomId || Number.isNaN(roomId)) {
+            alert("모임 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        if (!window.confirm("이 예산 신청을 취소하시겠습니까?")) {
+            return;
+        }
+
+        try {
+            setCanceling(true);
+
+            await cancelBudgetRequest(roomId, request.id);
+            await onCanceled();
+
+            alert("예산 신청이 취소되었습니다.");
+        } catch (error) {
+            console.error("예산 신청 취소에 실패했습니다.", error);
+
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "예산 신청 취소에 실패했습니다.",
+            );
+        } finally {
+            setCanceling(false);
+        }
+    };
+
     return (
         <div className="rounded-xl border border-zinc-100 p-4">
             <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                     <p className="font-semibold text-zinc-900">
                         {request.reason}
                     </p>
@@ -329,18 +368,31 @@ function RequestItem({
                     </p>
                 </div>
 
-                <p className="shrink-0 font-semibold text-zinc-900">
-                    {formatMoney(request.requestedAmount, currency)}
-                </p>
+                <div className="flex shrink-0 items-center gap-3">
+                    <p className="font-semibold text-zinc-900">
+                        {formatMoney(request.requestedAmount, currency)}
+                    </p>
+
+                    {request.status !== "SETTLEMENT" && (
+                        <button
+                            type="button"
+                            onClick={() => void handleCancel()}
+                            disabled={canceling}
+                            className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {canceling ? "취소 중..." : "취소"}
+                        </button>
+                    )}
+                </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-3 flex items-center justify-between gap-3">
                 <StatusBadge status={request.status} />
 
                 {request.rejectReason && (
                     <span className="text-xs text-red-500">
-            반려 사유: {request.rejectReason}
-          </span>
+                        반려 사유: {request.rejectReason}
+                    </span>
                 )}
             </div>
         </div>
