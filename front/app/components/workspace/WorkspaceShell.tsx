@@ -27,7 +27,7 @@ const navigation: {
     label: string;
     path: string;
     icon: IconName;
-    authority: String;
+    authority: string;
 }[] = [
     { label: "대시보드", path: "dashboard", icon: "dashboard", authority: "멤버" },
     { label: "예산 변경", path: "budget", icon: "budget", authority: "운영자" },
