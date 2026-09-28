@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import { getMe } from "../../lib/api/userApi";
@@ -36,6 +36,10 @@ const navigation: {
     { label: "초대하기", path: "invite/create", icon: "invite" },
     { label: "승인 관리", path: "approvals", icon: "approval" },
 ];
+
+const workspaceStyle = {
+    "--workspace-sidebar-width": "18rem",
+} as CSSProperties;
 
 function Icon({
     name,
@@ -302,9 +306,12 @@ export default function WorkspaceShell({
     }, [roomId]);
 
     return (
-        <div className="min-h-screen bg-[#f8f8fb] text-zinc-900">
+        <div
+            className="min-h-screen bg-[#f8f8fb] text-zinc-900"
+            style={workspaceStyle}
+        >
             {/* PC 사이드바 */}
-            <div className="fixed inset-y-0 left-0 z-20 hidden md:block">
+            <div className="fixed inset-y-0 left-0 z-20 hidden w-[var(--workspace-sidebar-width)] md:block">
                 <Sidebar
                     roomName={roomName}
                     userName={userName}
@@ -339,7 +346,7 @@ export default function WorkspaceShell({
                         className="absolute inset-0 bg-zinc-900/30"
                     />
 
-                    <div className="relative h-full w-72 bg-white shadow-xl">
+                    <div className="relative h-full w-[var(--workspace-sidebar-width)] bg-white shadow-xl">
                         <button
                             type="button"
                             aria-label="메뉴 닫기"
@@ -360,7 +367,7 @@ export default function WorkspaceShell({
                 </div>
             )}
 
-            <main className="min-h-[calc(100vh-4rem)] px-5 py-6 md:ml-64 md:min-h-screen md:px-10 md:py-10 lg:px-14">
+            <main className="min-h-[calc(100vh-4rem)] px-5 py-6 md:ml-[var(--workspace-sidebar-width)] md:min-h-screen md:px-10 md:py-10 lg:px-14">
                 {children}
             </main>
         </div>
