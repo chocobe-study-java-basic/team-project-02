@@ -20,7 +20,7 @@ type IconName =
     | "approval"
     | "menu"
     | "close"
-    | "chevron"
+    | "settings"
     | "back";
 
 const navigation: {
@@ -110,7 +110,13 @@ function Icon({
 
         close: <path d="m6 6 12 12M18 6 6 18" />,
 
-        chevron: <path d="m9 18-6-6 6-6" />,
+        settings: (
+            <path
+                fill="currentColor"
+                stroke="none"
+                d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.1 7.1 0 0 0-1.69-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.5.42l-.38 2.65c-.61.25-1.18.59-1.69.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46a.5.5 0 0 0 .6.22l2.49-1c.51.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.25 1.18-.58 1.69-.98l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"
+            />
+        ),
 
         back: <path d="m15 18-6-6 6-6" />,
     };
@@ -147,8 +153,9 @@ function Sidebar({
                 내 모임 목록
             </Link>
 
-            <button
-                type="button"
+            <Link
+                href={roomBasePath ?? "/rooms"}
+                onClick={onNavigate}
                 className="mb-6 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-zinc-50"
             >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-base font-bold text-white">
@@ -159,8 +166,8 @@ function Sidebar({
                     {roomName}
                 </span>
 
-                <Icon name="chevron" className="h-4 w-4 text-zinc-400" />
-            </button>
+                <Icon name="settings" className="h-4 w-4 text-zinc-400" />
+            </Link>
 
             <nav aria-label="업무 메뉴" className="space-y-1">
                 {navigation.map((item) => {
