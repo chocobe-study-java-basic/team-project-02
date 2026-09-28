@@ -10,6 +10,7 @@ import {
     rejectBudgetRequest,
     type BudgetRequest,
 } from "@/app/lib/api/budgetRequestApi";
+import { getMe } from "@/app/lib/api/userApi";
 
 export default function ApprovalsPage() {
     const { roomId: roomIdParam } = useParams<{ roomId: string }>();
@@ -17,6 +18,7 @@ export default function ApprovalsPage() {
 
     const [requests, setRequests] = useState<BudgetRequest[]>([]);
     const [availableBudget, setAvailableBudget] = useState<number | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -40,13 +42,15 @@ export default function ApprovalsPage() {
             setLoading(true);
             setError(null);
 
-            const [requestData, budgetData] = await Promise.all([
+            const [requestData, budgetData, currentUser] = await Promise.all([
                 getBudgetRequests(roomId),
                 getBudget(roomId),
+                getMe(),
             ]);
 
             setRequests(requestData);
             setAvailableBudget(budgetData.availableBudget);
+            setCurrentUserId(currentUser.id);
         } catch (error) {
             console.error(
                 "승인 관리 정보를 불러오지 못했습니다.",
@@ -285,8 +289,8 @@ export default function ApprovalsPage() {
                                 </h2>
 
                                 <span className="text-sm font-semibold text-amber-600">
-                  ({pendingRequests.length}건)
-                </span>
+                                    ({pendingRequests.length}건)
+                                </span>
                             </div>
 
                             {pendingRequests.length === 0 ? (
@@ -302,6 +306,10 @@ export default function ApprovalsPage() {
                                             formatAmount={formatAmount}
                                             processing={
                                                 processingId === request.id
+                                            }
+                                            canReview={
+                                                currentUserId !== null &&
+                                                request.userId !== currentUserId
                                             }
                                             onApprove={handleApprove}
                                             onReject={handleOpenReject}
@@ -383,12 +391,14 @@ function ApprovalCard({
                           request,
                           formatAmount,
                           processing,
+                          canReview,
                           onApprove,
                           onReject,
                       }: {
     request: BudgetRequest;
     formatAmount: (amount: number) => string;
     processing: boolean;
+    canReview: boolean;
     onApprove: (requestId: number) => Promise<void>;
     onReject: (request: BudgetRequest) => void;
 }) {
@@ -437,25 +447,27 @@ function ApprovalCard({
                 </p>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
-                <button
-                    type="button"
-                    disabled={processing}
-                    onClick={() => void onApprove(request.id)}
-                    className="rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    {processing ? "처리 중..." : "승인"}
-                </button>
+            {canReview && (
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                        type="button"
+                        disabled={processing}
+                        onClick={() => void onApprove(request.id)}
+                        className="rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {processing ? "처리 중..." : "승인"}
+                    </button>
 
-                <button
-                    type="button"
-                    disabled={processing}
-                    onClick={() => onReject(request)}
-                    className="rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    반려
-                </button>
-            </div>
+                    <button
+                        type="button"
+                        disabled={processing}
+                        onClick={() => onReject(request)}
+                        className="rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        반려
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
