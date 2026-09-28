@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiError } from "../../lib/api/types";
 import { getRooms, type Room } from "../../lib/api/roomsApi";
 import { getMe } from "../../lib/api/userApi";
+import UserProfileMenu from "../common/UserProfileMenu/UserProfileMenu";
 
 function formatBudget(amount: number, currency: string) {
   const formatted = new Intl.NumberFormat("ko-KR").format(amount);
@@ -207,15 +208,7 @@ export default function RoomListPage() {
             </span>
             </Link>
 
-            <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 font-bold text-indigo-500">
-              {userName.charAt(0) || "?"}
-            </span>
-
-              <span className="text-sm font-semibold">
-              {userName || "사용자"}
-            </span>
-            </div>
+            <UserProfileMenu userName={userName} />
           </div>
         </header>
 
@@ -234,14 +227,6 @@ export default function RoomListPage() {
             </div>
 
             <div className="flex gap-2">
-              <button
-                  type="button"
-                  disabled
-                  className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-500 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                ＋ 모임 참여
-              </button>
-
               <Link
                   href="/rooms/create"
                   className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700"
@@ -297,26 +282,6 @@ export default function RoomListPage() {
                         room={room}
                     />
                 ))}
-          </section>
-
-          <section className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-6 py-6">
-            <div>
-              <h2 className="font-bold text-indigo-600">
-                초대 링크로 모임에 참여하기
-              </h2>
-
-              <p className="mt-1 text-sm text-indigo-500">
-                친구에게 받은 초대 링크가 있다면 바로 참여할 수 있어요.
-              </p>
-            </div>
-
-            <button
-                type="button"
-                disabled
-                className="rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-600 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              링크로 참여
-            </button>
           </section>
         </div>
       </main>

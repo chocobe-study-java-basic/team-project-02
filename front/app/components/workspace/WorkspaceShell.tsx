@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useState } from "react";
 
-import { getMe, logout } from "../../lib/api/userApi";
+import { getMe } from "../../lib/api/userApi";
 import { getMembers, getRoom } from "../../lib/api/roomsApi";
 import { getBudgetRequests } from "../../lib/api/budgetRequestApi";
+import UserProfileMenu from "../common/UserProfileMenu/UserProfileMenu";
 
 type IconName =
     | "dashboard"
@@ -19,7 +20,7 @@ type IconName =
     | "approval"
     | "menu"
     | "close"
-    | "chevron"
+    | "settings"
     | "back";
 
 const navigation: {
@@ -36,10 +37,14 @@ const navigation: {
     { label: "승인 관리", path: "approvals", icon: "approval" },
 ];
 
+const workspaceStyle = {
+    "--workspace-sidebar-width": "18rem",
+} as CSSProperties;
+
 function Icon({
-                  name,
-                  className = "",
-              }: {
+    name,
+    className = "",
+}: {
     name: IconName;
     className?: string;
 }) {
@@ -105,7 +110,13 @@ function Icon({
 
         close: <path d="m6 6 12 12M18 6 6 18" />,
 
-        chevron: <path d="m9 18-6-6 6-6" />,
+        settings: (
+            <path
+                fill="currentColor"
+                stroke="none"
+                d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.1 7.1 0 0 0-1.69-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.5.42l-.38 2.65c-.61.25-1.18.59-1.69.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46a.5.5 0 0 0 .6.22l2.49-1c.51.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.25 1.18-.58 1.69-.98l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"
+            />
+        ),
 
         back: <path d="m15 18-6-6 6-6" />,
     };
@@ -114,12 +125,12 @@ function Icon({
 }
 
 function Sidebar({
-                     onNavigate,
-                     roomName,
-                     userName,
-                     userRole,
-                     pendingRequestCount,
-                 }: {
+    onNavigate,
+    roomName,
+    userName,
+    userRole,
+    pendingRequestCount,
+}: {
     onNavigate?: () => void;
     roomName: string;
     userName: string;
@@ -131,17 +142,8 @@ function Sidebar({
     const roomId = pathname.match(/^\/rooms\/([^/]+)/)?.[1];
     const roomBasePath = roomId ? `/rooms/${roomId}` : null;
 
-    const handleLogout = async () => {
-        try {
-            await logout();
-            window.location.replace("/login");
-        } catch (error) {
-            console.error("로그아웃에 실패했습니다.", error);
-        }
-    };
-
     return (
-        <aside className="flex h-full w-64 flex-col border-r border-zinc-200 bg-white px-3 py-5">
+        <aside className="flex h-full flex-col border-r border-zinc-200 bg-white px-3 py-5">
             <Link
                 href="/rooms"
                 onClick={onNavigate}
@@ -151,8 +153,9 @@ function Sidebar({
                 내 모임 목록
             </Link>
 
-            <button
-                type="button"
+            <Link
+                href={roomBasePath ?? "/rooms"}
+                onClick={onNavigate}
                 className="mb-6 flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-zinc-50"
             >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-base font-bold text-white">
@@ -163,8 +166,8 @@ function Sidebar({
                     {roomName}
                 </span>
 
-                <Icon name="chevron" className="h-4 w-4 text-zinc-400" />
-            </button>
+                <Icon name="settings" className="h-4 w-4 text-zinc-400" />
+            </Link>
 
             <nav aria-label="업무 메뉴" className="space-y-1">
                 {navigation.map((item) => {
@@ -202,37 +205,19 @@ function Sidebar({
 
             {/* 현재 로그인한 사용자 */}
             <div className="mt-auto border-t border-zinc-100 px-2 pt-4">
-                <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-sm font-semibold text-white">
-                        {userName.charAt(0) || "?"}
-                    </span>
-
-                    <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-zinc-800">
-                            {userName || "사용자"}
-                        </p>
-
-                        <p className="text-xs text-zinc-500">
-                            {userRole || "멤버"}
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
-                    >
-                        로그아웃
-                    </button>
-                </div>
+                <UserProfileMenu
+                    userName={userName}
+                    userRole={userRole}
+                    menuPosition="top"
+                />
             </div>
         </aside>
     );
 }
 
 export default function WorkspaceShell({
-                                           children,
-                                       }: {
+    children,
+}: {
     children: ReactNode;
 }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -328,9 +313,12 @@ export default function WorkspaceShell({
     }, [roomId]);
 
     return (
-        <div className="min-h-screen bg-[#f8f8fb] text-zinc-900">
+        <div
+            className="min-h-screen bg-[#f8f8fb] text-zinc-900"
+            style={workspaceStyle}
+        >
             {/* PC 사이드바 */}
-            <div className="fixed inset-y-0 left-0 z-20 hidden md:block">
+            <div className="fixed inset-y-0 left-0 z-20 hidden w-[var(--workspace-sidebar-width)] md:block">
                 <Sidebar
                     roomName={roomName}
                     userName={userName}
@@ -365,7 +353,7 @@ export default function WorkspaceShell({
                         className="absolute inset-0 bg-zinc-900/30"
                     />
 
-                    <div className="relative h-full w-72 bg-white shadow-xl">
+                    <div className="relative h-full w-[var(--workspace-sidebar-width)] bg-white shadow-xl">
                         <button
                             type="button"
                             aria-label="메뉴 닫기"
@@ -386,7 +374,7 @@ export default function WorkspaceShell({
                 </div>
             )}
 
-            <main className="min-h-[calc(100vh-4rem)] px-5 py-6 md:ml-64 md:min-h-screen md:px-10 md:py-10 lg:px-14">
+            <main className="min-h-[calc(100vh-4rem)] px-5 py-6 md:ml-[var(--workspace-sidebar-width)] md:min-h-screen md:px-10 md:py-10 lg:px-14">
                 {children}
             </main>
         </div>
