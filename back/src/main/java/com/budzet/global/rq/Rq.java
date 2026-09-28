@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -42,11 +43,12 @@ public class Rq {
                 .orElse(defaultValue);
     }
 
-    public void addCookie(String name, String value){
+    public void addCookie(String name, String value, Duration maxAge){
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .path("/")
                 .httpOnly(true)
                 .sameSite("Lax")
+                .maxAge(maxAge)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

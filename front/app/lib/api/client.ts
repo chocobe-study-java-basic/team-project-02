@@ -1,10 +1,12 @@
 "use client";
 
 import { ApiError, type ApiResponse } from "./types";
+import { ensureFreshAccessToken, isLoggingOut, stopAuthentication } from "./tokenManager";
 
 type ApiFetchOptions = Omit<RequestInit, "body" | "credentials"> & {
   body?: unknown;
   redirectOnUnauthorized?: boolean;
+  skipTokenRefresh?: boolean;
 };
 
 const API_BASE_URL = (
@@ -21,7 +23,8 @@ function isJsonBody(body: unknown): body is Record<string, unknown> {
   return body !== null && typeof body === "object" && !(body instanceof FormData);
 }
 
-function redirectToLogin() {
+export function redirectToLogin() {
+  stopAuthentication();
   if (typeof window === "undefined" || isRedirectingToLogin || window.location.pathname === "/login") {
     return;
   }
@@ -33,8 +36,21 @@ function redirectToLogin() {
 
 export async function apiFetch<T>(
   path: string,
-  { body, headers, redirectOnUnauthorized = true, ...options }: ApiFetchOptions = {},
+  { body, headers, redirectOnUnauthorized = true, skipTokenRefresh = false, ...options }: ApiFetchOptions = {},
 ): Promise<T> {
+  if (!skipTokenRefresh) {
+    try {
+      await ensureFreshAccessToken(() => apiFetch<{ accessToken: string }>("/users/refresh", {
+        method: "POST",
+        skipTokenRefresh: true,
+        redirectOnUnauthorized: false,
+      }));
+    } catch (error) {
+      if (!isLoggingOut()) redirectToLogin();
+      throw error;
+    }
+  }
+
   const requestHeaders = new Headers(headers);
   const jsonBody = isJsonBody(body);
 
@@ -67,7 +83,7 @@ export async function apiFetch<T>(
       response.status,
     );
 
-    if (response.status === 401 && redirectOnUnauthorized) {
+    if (response.status === 401 && redirectOnUnauthorized && !isLoggingOut()) {
       redirectToLogin();
     }
 

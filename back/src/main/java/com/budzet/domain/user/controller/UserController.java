@@ -11,9 +11,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +25,12 @@ public class UserController {
 
     private final UserService userService;
     private final Rq rq;
+
+    @Value("${custom.jwt.access-expire-millis}")
+    private long accessExpireMillis;
+
+    @Value("${custom.jwt.refresh-expire-millis}")
+    private long refreshExpireMillis;
 
 
     @PostMapping("/join")
@@ -43,8 +52,8 @@ public class UserController {
     ){
         UserLoginResponse response = userService.login(reqBody.email(), reqBody.password());
 
-        rq.addCookie("accessToken", response.accessToken());
-        rq.addCookie("refreshToken", response.refreshToken());
+        rq.addCookie("accessToken", response.accessToken(), Duration.ofMillis(accessExpireMillis));
+        rq.addCookie("refreshToken", response.refreshToken(), Duration.ofMillis(refreshExpireMillis));
 
         return ApiResponse.response(
                 HttpStatus.OK,
@@ -91,8 +100,8 @@ public class UserController {
 
         TokenRefreshResponse tokenResponse = userService.refresh(refreshToken);
 
-        rq.addCookie("accessToken", tokenResponse.accessToken());
-        rq.addCookie("refreshToken", tokenResponse.refreshToken());
+        rq.addCookie("accessToken", tokenResponse.accessToken(), Duration.ofMillis(accessExpireMillis));
+        rq.addCookie("refreshToken", tokenResponse.refreshToken(), Duration.ofMillis(refreshExpireMillis));
 
         return ApiResponse.response(
                 HttpStatus.OK,
