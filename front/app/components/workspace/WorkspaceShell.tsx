@@ -133,7 +133,7 @@ function Sidebar({
     const roomBasePath = roomId ? `/rooms/${roomId}` : null;
 
     return (
-        <aside className="flex h-full w-64 flex-col border-r border-zinc-200 bg-white px-3 py-5">
+        <aside className="flex h-full flex-col border-r border-zinc-200 bg-white px-3 py-5">
             <Link
                 href="/rooms"
                 onClick={onNavigate}
