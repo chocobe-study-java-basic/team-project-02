@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:budzet;MODE=MySQL;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+custom:
+  jwt:
+    access-secret: test-access-secret-for-ci-only-0123456789
+    refresh-secret: test-refresh-secret-for-ci-only-0123456789
