@@ -29,14 +29,14 @@ const navigation: {
     icon: IconName;
     authority: String;
 }[] = [
-    { label: "대시보드", path: "dashboard", icon: "dashboard", authority: "멤버" },
-    { label: "예산 변경", path: "budget", icon: "budget", authority: "운영자" },
-    { label: "예산 신청", path: "budget-requests", icon: "request", authority: "멤버" },
-    { label: "정산하기", path: "settlements", icon: "settlement", authority: "멤버" },
-    { label: "멤버", path: "members", icon: "members", authority: "멤버" },
-    { label: "초대하기", path: "invite/create", icon: "invite", authority: "방장" },
-    { label: "승인 관리", path: "approvals", icon: "approval", authority: "운영자" },
-];
+        { label: "대시보드", path: "dashboard", icon: "dashboard", authority: "멤버" },
+        { label: "예산 변경", path: "budget", icon: "budget", authority: "운영자" },
+        { label: "예산 신청", path: "budget-requests", icon: "request", authority: "멤버" },
+        { label: "정산하기", path: "settlements", icon: "settlement", authority: "멤버" },
+        { label: "멤버", path: "members", icon: "members", authority: "멤버" },
+        { label: "초대하기", path: "invite/create", icon: "invite", authority: "방장" },
+        { label: "승인 관리", path: "approvals", icon: "approval", authority: "운영자" },
+    ];
 
 const workspaceStyle = {
     "--workspace-sidebar-width": "18rem",
@@ -172,56 +172,55 @@ function Sidebar({
 
             <nav aria-label="업무 메뉴" className="space-y-1">
                 {navigation
-                .filter((item) => {
-                    if (userRole === "방장") {
-                        return true;
-                    }
+                    .filter((item) => {
+                        if (userRole === "방장") {
+                            return true;
+                        }
 
-                    if (userRole === "운영자") {
-                        return (
-                            item.authority === "운영자" ||
-                            item.authority === "멤버"
-                        );
-                    }
+                        if (userRole === "운영자") {
+                            return (
+                                item.authority === "운영자" ||
+                                item.authority === "멤버"
+                            );
+                        }
 
-                    if (userRole === "멤버") {
-                        return item.authority === "멤버";
-                    }
+                        if (userRole === "멤버") {
+                            return item.authority === "멤버";
+                        }
 
-                    return false;
+                        return false;
                     })
-                .map((item) => {
-                    const href = roomBasePath
-                        ? `${roomBasePath}/${item.path}`
-                        : "/rooms";
+                    .map((item) => {
+                        const href = roomBasePath
+                            ? `${roomBasePath}/${item.path}`
+                            : "/rooms";
 
-                    const active = pathname === href;
+                        const active = pathname === href;
 
-                    return (
-                        <Link
-                            key={item.path}
-                            href={href}
-                            onClick={onNavigate}
-                            className={`flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors ${
-                                active
-                                    ? "bg-indigo-50 text-indigo-600"
-                                    : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
-                            }`}
-                        >
-                            <Icon name={item.icon} />
+                        return (
+                            <Link
+                                key={item.path}
+                                href={href}
+                                onClick={onNavigate}
+                                className={`flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors ${active
+                                        ? "bg-indigo-50 text-indigo-600"
+                                        : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+                                    }`}
+                            >
+                                <Icon name={item.icon} />
 
-                            <span className="flex-1">{item.label}</span>
+                                <span className="flex-1">{item.label}</span>
 
-                            {item.path === "approvals" &&
-                                pendingRequestCount > 0 && (
-                                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 text-xs font-semibold text-amber-700">
-                                        {pendingRequestCount}
-                                    </span>
-                                )}
-                        </Link>
-                    );
+                                {item.path === "approvals" &&
+                                    pendingRequestCount > 0 && (
+                                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 text-xs font-semibold text-amber-700">
+                                            {pendingRequestCount}
+                                        </span>
+                                    )}
+                            </Link>
+                        );
 
-                })}
+                    })}
             </nav>
 
             {/* 현재 로그인한 사용자 */}
@@ -242,6 +241,7 @@ export default function WorkspaceShell({
     children: ReactNode;
 }) {
     const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
 
     const { roomId: roomIdParam } = useParams<{
         roomId?: string;
@@ -254,6 +254,19 @@ export default function WorkspaceShell({
     // 현재 로그인한 사용자 정보
     const [userName, setUserName] = useState("");
     const [userRole, setUserRole] = useState("");
+    const [accessCheck, setAccessCheck] = useState<{
+        roomId: number;
+        failed: boolean;
+    } | null>(null);
+
+    const restrictedPage = pathname.match(
+        /^\/rooms\/[^/]+\/(budget|approvals|invite\/create)(?:\/|$)/,
+    )?.[1];
+    const validRoomId = roomId !== null && Number.isSafeInteger(roomId) && roomId > 0;
+    const accessChecked = accessCheck?.roomId === roomId;
+    const canAccess = userRole === "방장" ||
+        (restrictedPage !== "invite/create" && userRole === "운영자");
+
 
     // 승인 요청 개수
     const [pendingRequestCount, setPendingRequestCount] = useState(0);
@@ -263,13 +276,18 @@ export default function WorkspaceShell({
             return;
         }
 
+        let cancelled = false;
         const loadWorkspace = async () => {
+            if (cancelled) return;
+            setAccessCheck(null);
             try {
                 const [room, user, members] = await Promise.all([
                     getRoom(roomId),
                     getMe(),
                     getMembers(roomId),
                 ]);
+
+                if (cancelled) return;
 
                 // 모임 이름
                 setRoomName(room.name);
@@ -299,13 +317,20 @@ export default function WorkspaceShell({
                         default:
                             setUserRole(currentMember.authority);
                     }
+                } else {
+                    setUserRole("");
                 }
+                setAccessCheck({ roomId, failed: false });
             } catch (error) {
+                if (cancelled) return;
+                setUserRole("");
+                setAccessCheck({ roomId, failed: true });
                 console.error("모임 정보를 불러오지 못했습니다.", error);
             }
         };
 
-        void loadWorkspace();
+        void Promise.resolve().then(loadWorkspace);
+        return () => { cancelled = true; };
     }, [roomId]);
 
     useEffect(() => {
@@ -396,7 +421,23 @@ export default function WorkspaceShell({
             )}
 
             <main className="min-h-[calc(100vh-4rem)] px-5 py-6 md:ml-[var(--workspace-sidebar-width)] md:min-h-screen md:px-10 md:py-10 lg:px-14">
-                {children}
+                {/* 일반 페이지는 그대로 표시하고, 제한 페이지는 권한 확인 후에만 표시 */}
+                {/* 확인 중·조회 실패·권한 없음 상태에서는 페이지 내부 API도 실행되지 않음 */}
+                {!restrictedPage ? children : !validRoomId ? (
+                    <p role="alert" className="py-12 text-center text-sm text-red-600">잘못된 모임 주소입니다.</p>
+                ) : !accessChecked ? (
+                    <p role="status" className="py-12 text-center text-sm text-zinc-500">접근 권한을 확인하고 있습니다.</p>
+                ) : accessCheck?.failed ? (
+                    <section className="rounded-2xl border border-red-200 bg-white p-8 text-center">
+                        <p role="alert" className="text-sm text-red-600">접근 권한을 확인하지 못했습니다. 새로고침 후 다시 시도해 주세요.</p>
+                    </section>
+                ) : !canAccess ? (
+                    <section className="rounded-2xl border border-zinc-200 bg-white p-8 text-center">
+                        <h1 className="text-xl font-bold">접근 권한이 없습니다.</h1>
+                        <p className="mt-2 text-sm text-zinc-500">이 페이지를 이용할 수 있는 모임 권한이 없습니다.</p>
+                        <Link href={`/rooms/${roomId}/dashboard`} className="mt-5 inline-flex rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white">대시보드로 이동</Link>
+                    </section>
+                ) : children}
             </main>
         </div>
     );
