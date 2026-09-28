@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiError } from "../../lib/api/types";
 import { getRooms, type Room } from "../../lib/api/roomsApi";
 import { getMe } from "../../lib/api/userApi";
+import UserProfileMenu from "../common/UserProfileMenu/UserProfileMenu";
 
 function formatBudget(amount: number, currency: string) {
   const formatted = new Intl.NumberFormat("ko-KR").format(amount);
@@ -207,15 +208,7 @@ export default function RoomListPage() {
             </span>
             </Link>
 
-            <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 font-bold text-indigo-500">
-              {userName.charAt(0) || "?"}
-            </span>
-
-              <span className="text-sm font-semibold">
-              {userName || "사용자"}
-            </span>
-            </div>
+            <UserProfileMenu userName={userName} />
           </div>
         </header>
 

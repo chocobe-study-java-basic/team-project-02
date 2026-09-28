@@ -5,9 +5,10 @@ import { useParams, usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
-import { getMe, logout } from "../../lib/api/userApi";
+import { getMe } from "../../lib/api/userApi";
 import { getMembers, getRoom } from "../../lib/api/roomsApi";
 import { getBudgetRequests } from "../../lib/api/budgetRequestApi";
+import UserProfileMenu from "../common/UserProfileMenu/UserProfileMenu";
 
 type IconName =
     | "dashboard"
@@ -131,15 +132,6 @@ function Sidebar({
     const roomId = pathname.match(/^\/rooms\/([^/]+)/)?.[1];
     const roomBasePath = roomId ? `/rooms/${roomId}` : null;
 
-    const handleLogout = async () => {
-        try {
-            await logout();
-            window.location.replace("/login");
-        } catch (error) {
-            console.error("로그아웃에 실패했습니다.", error);
-        }
-    };
-
     return (
         <aside className="flex h-full w-64 flex-col border-r border-zinc-200 bg-white px-3 py-5">
             <Link
@@ -202,29 +194,7 @@ function Sidebar({
 
             {/* 현재 로그인한 사용자 */}
             <div className="mt-auto border-t border-zinc-100 px-2 pt-4">
-                <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-sm font-semibold text-white">
-                        {userName.charAt(0) || "?"}
-                    </span>
-
-                    <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-zinc-800">
-                            {userName || "사용자"}
-                        </p>
-
-                        <p className="text-xs text-zinc-500">
-                            {userRole || "멤버"}
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
-                    >
-                        로그아웃
-                    </button>
-                </div>
+                <UserProfileMenu userName={userName} userRole={userRole} />
             </div>
         </aside>
     );
