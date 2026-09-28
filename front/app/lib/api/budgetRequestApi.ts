@@ -63,3 +63,15 @@ export async function rejectBudgetRequest(
         },
     );
 }
+
+export async function cancelBudgetRequest(
+    roomId: number,
+    requestId: number
+) {
+    return apiFetch<null>(
+        `/rooms/${roomId}/budget/request/${requestId}`,
+        {
+            method: "DELETE",
+        },
+    );
+}
