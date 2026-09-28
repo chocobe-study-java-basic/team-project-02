@@ -27,14 +27,15 @@ const navigation: {
     label: string;
     path: string;
     icon: IconName;
+    authority: String;
 }[] = [
-    { label: "대시보드", path: "dashboard", icon: "dashboard" },
-    { label: "예산 변경", path: "budget", icon: "budget" },
-    { label: "예산 신청", path: "budget-requests", icon: "request" },
-    { label: "정산하기", path: "settlements", icon: "settlement" },
-    { label: "멤버", path: "members", icon: "members" },
-    { label: "초대하기", path: "invite/create", icon: "invite" },
-    { label: "승인 관리", path: "approvals", icon: "approval" },
+    { label: "대시보드", path: "dashboard", icon: "dashboard", authority: "멤버" },
+    { label: "예산 변경", path: "budget", icon: "budget", authority: "운영자" },
+    { label: "예산 신청", path: "budget-requests", icon: "request", authority: "멤버" },
+    { label: "정산하기", path: "settlements", icon: "settlement", authority: "멤버" },
+    { label: "멤버", path: "members", icon: "members", authority: "멤버" },
+    { label: "초대하기", path: "invite/create", icon: "invite", authority: "방장" },
+    { label: "승인 관리", path: "approvals", icon: "approval", authority: "운영자" },
 ];
 
 const workspaceStyle = {
@@ -170,7 +171,26 @@ function Sidebar({
             </Link>
 
             <nav aria-label="업무 메뉴" className="space-y-1">
-                {navigation.map((item) => {
+                {navigation
+                .filter((item) => {
+                    if (userRole === "방장") {
+                        return true;
+                    }
+
+                    if (userRole === "운영자") {
+                        return (
+                            item.authority === "운영자" ||
+                            item.authority === "멤버"
+                        );
+                    }
+
+                    if (userRole === "멤버") {
+                        return item.authority === "멤버";
+                    }
+
+                    return false;
+                    })
+                .map((item) => {
                     const href = roomBasePath
                         ? `${roomBasePath}/${item.path}`
                         : "/rooms";
@@ -200,6 +220,7 @@ function Sidebar({
                                 )}
                         </Link>
                     );
+
                 })}
             </nav>
 
