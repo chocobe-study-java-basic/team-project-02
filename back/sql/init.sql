@@ -1,0 +1,3 @@
+-- DB 생성
+CREATE DATABASE IF NOT EXISTS budzet;
+
