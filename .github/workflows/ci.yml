@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  back-test:
-    name: Back test
+  back-check:
+    name: Check the Backend for CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -44,9 +44,12 @@ jobs:
             back/build/reports/tests/test
           retention-days: 7
           if-no-files-found: warn
+      - name: Report backend success
+        if: ${{ success() }}
+        run: echo "🎉 Backend CI checks passed successfully."
 
   front-check:
-    name: Front lint, typecheck and build
+    name: Check the Frontend for CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -73,3 +76,7 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Report frontend success
+        if: ${{ success() }}
+        run: echo "🎉 Frontend CI checks passed successfully."
