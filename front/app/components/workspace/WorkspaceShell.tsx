@@ -11,6 +11,7 @@ import { getBudgetRequests } from "../../lib/api/budgetRequestApi";
 
 type IconName =
     | "dashboard"
+    | "budget"
     | "request"
     | "settlement"
     | "members"
@@ -27,6 +28,7 @@ const navigation: {
     icon: IconName;
 }[] = [
     { label: "대시보드", path: "dashboard", icon: "dashboard" },
+    { label: "예산 변경", path: "budget", icon: "budget" },
     { label: "예산 신청", path: "budget-requests", icon: "request" },
     { label: "정산하기", path: "settlements", icon: "settlement" },
     { label: "멤버", path: "members", icon: "members" },
@@ -61,6 +63,8 @@ function Icon({
                 <rect x="14" y="14" width="7" height="7" rx="1" />
             </>
         ),
+
+        budget: <><path d="M7 4v16m-3-3 3 3 3-3M17 20V4m-3 3 3-3 3 3" /></>,
 
         request: (
             <>
