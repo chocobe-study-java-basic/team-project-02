@@ -38,9 +38,9 @@ const navigation: {
 ];
 
 function Icon({
-                  name,
-                  className = "",
-              }: {
+    name,
+    className = "",
+}: {
     name: IconName;
     className?: string;
 }) {
@@ -115,12 +115,12 @@ function Icon({
 }
 
 function Sidebar({
-                     onNavigate,
-                     roomName,
-                     userName,
-                     userRole,
-                     pendingRequestCount,
-                 }: {
+    onNavigate,
+    roomName,
+    userName,
+    userRole,
+    pendingRequestCount,
+}: {
     onNavigate?: () => void;
     roomName: string;
     userName: string;
@@ -194,15 +194,19 @@ function Sidebar({
 
             {/* 현재 로그인한 사용자 */}
             <div className="mt-auto border-t border-zinc-100 px-2 pt-4">
-                <UserProfileMenu userName={userName} userRole={userRole} />
+                <UserProfileMenu
+                    userName={userName}
+                    userRole={userRole}
+                    menuPosition="top"
+                />
             </div>
         </aside>
     );
 }
 
 export default function WorkspaceShell({
-                                           children,
-                                       }: {
+    children,
+}: {
     children: ReactNode;
 }) {
     const [isOpen, setIsOpen] = useState(false);

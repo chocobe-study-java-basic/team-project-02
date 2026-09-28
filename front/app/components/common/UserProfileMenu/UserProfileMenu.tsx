@@ -7,16 +7,22 @@ import { logout } from "../../../lib/api/userApi";
 type UserProfileMenuProps = {
     userName: string;
     userRole?: string;
+    menuPosition?: "top" | "bottom";
 };
 
 export default function UserProfileMenu({
     userName,
     userRole,
+    menuPosition = "bottom",
 }: UserProfileMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const displayName = userName || "사용자";
+    const menuPositionClass =
+        menuPosition === "top"
+            ? "bottom-[calc(100%+0.5rem)]"
+            : "top-[calc(100%+0.5rem)]";
 
     useEffect(() => {
         if (!isOpen) {
@@ -88,7 +94,7 @@ export default function UserProfileMenu({
                 <div
                     role="menu"
                     aria-label="사용자 메뉴"
-                    className="absolute right-0 top-[calc(100%+0.5rem)] z-40 min-w-36 rounded-xl border border-zinc-200 bg-white p-1 shadow-lg"
+                    className={`absolute left-0 z-40 w-full rounded-xl border border-zinc-200 bg-white p-1 shadow-lg ${menuPositionClass}`}
                 >
                     <button
                         type="button"
