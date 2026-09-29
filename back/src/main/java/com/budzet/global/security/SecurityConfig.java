@@ -80,7 +80,9 @@ public class SecurityConfig {
     /**
      * 프론트엔드에 대한 CORS 설정
      * - 개발환경: localhost
-     * - 배포환경: Vercel
+     * - 배포환경:
+     *     - Vercel 기본 도메인
+     *     - Custom Domain
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -88,7 +90,10 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://team-project-02.vercel.app"
+                // Vercel 기본 도메인
+                "https://team-project-02.vercel.app",
+                // Custom Domain
+                "https://budzet.chocobe.cloud"
         ));
 
         configuration.setAllowedMethods(List.of(
