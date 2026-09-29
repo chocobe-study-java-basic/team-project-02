@@ -526,14 +526,6 @@ Merge
 | 상범 | Backend / Frontend |
 | 진형 | Backend / Frontend |
 
----
-
-## 📚 Documentation
-
-- [기술 구현 보고서](./docs/TECHNICAL.md)
-- [API 명세](./docs/API.md)
-- [ERD](./docs/ERD.md)
-- [협업 프로세스](./docs/WORKFLOW.md)
 
 ---
 
