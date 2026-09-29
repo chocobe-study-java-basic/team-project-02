@@ -47,7 +47,8 @@ public class Rq {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .path("/")
                 .httpOnly(true)
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("None")
                 .maxAge(maxAge)
                 .build();
 
@@ -58,7 +59,8 @@ public class Rq {
         ResponseCookie cookie = ResponseCookie.from(name, "")
                 .path("/")
                 .httpOnly(true)
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("None")
                 .maxAge(0)
                 .build();
 
