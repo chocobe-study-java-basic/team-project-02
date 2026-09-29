@@ -158,7 +158,6 @@ UserRoomConnection
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
 ![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?style=flat-square&logo=spring&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL%208.4-4479A1?style=flat-square&logo=mysql&logoColor=white)
 
 ### Frontend
 
@@ -169,7 +168,6 @@ UserRoomConnection
 
 ### Infrastructure
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white)
 
 ---
@@ -513,19 +511,6 @@ Merge
 - 정산 후 차액의 자동 예산 반영
 - Room 단위 권한 관리
 - 안정적인 예산 데이터 정합성 유지
-
----
-
-# 👨‍💻 Team
-
-| 이름 | 역할 |
-|:---:|:---:|
-| 영빈 | Backend / Frontend |
-| 영우 | Backend / Frontend |
-| 수지 | Backend / Frontend |
-| 상범 | Backend / Frontend |
-| 진형 | Backend / Frontend |
-
 
 ---
 
