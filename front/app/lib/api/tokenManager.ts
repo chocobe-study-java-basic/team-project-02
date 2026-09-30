@@ -5,8 +5,7 @@ import { ApiError } from "./types";
 const EXPIRES_AT_KEY = "budzet.accessTokenExpiresAt";
 const STOPPED_KEY = "budzet.authStopped";
 const AUTH_LOCK = "budzet.auth";
-// TODO: 제출 전 운영 정책에 맞춰 변경
-const REFRESH_MARGIN_MS = 10 * 1000; //10초
+const REFRESH_MARGIN_MS = 1000 * 60 * 5 // 5분
 
 let refreshPromise: Promise<void> | null = null;
 let stopped = false;

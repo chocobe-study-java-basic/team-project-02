@@ -514,6 +514,127 @@ Merge
 
 ---
 
+# 🚀 배포
+
+## 배포 환경
+
+| 구분 | 환경 |
+| --- | --- |
+| Frontend | Vercel |
+| Backend | AWS Lightsail |
+| Database | Aiven MySQL |
+| Frontend URL | `https://budzet.chocobe.cloud` |
+| Backend URL | `https://chocobe.cloud` |
+
+Frontend는 Vercel과 GitHub Repository를 연동하여 배포하며, Backend는 Spring Boot JAR 파일을 AWS Lightsail에 직접 업로드하여 배포합니다.
+
+---
+
+## Frontend 배포
+
+Frontend는 Vercel과 GitHub Repository가 연결되어 있습니다.
+
+`main` 브랜치에 변경사항을 Push하면 Vercel에서 자동으로 배포됩니다.
+
+```bash
+git push origin main
+```
+
+Vercel 프로젝트는 다음과 같이 설정되어 있습니다.
+
+- Root Directory: `front`
+- Custom Domain: `budzet.chocobe.cloud`
+- `NEXT_PUBLIC_API_BASE_URL=https://chocobe.cloud`
+
+배포 후 다음 주소에서 Frontend의 정상 동작 여부를 확인합니다.
+
+```text
+https://budzet.chocobe.cloud
+```
+
+---
+
+## Backend 배포
+
+Backend는 Spring Boot JAR 파일을 빌드한 후 AWS Lightsail에 직접 업로드하여 배포합니다.
+
+### 1. JAR 빌드
+
+Repository의 `back` 디렉터리에서 다음 명령어를 실행합니다.
+
+```bash
+./gradlew clean bootJar
+```
+
+빌드가 완료되면 다음 경로에 JAR 파일이 생성됩니다.
+
+```text
+back/build/libs/budzet-0.0.1-SNAPSHOT.jar
+```
+
+### 2. Lightsail에 JAR 업로드
+
+생성된 JAR 파일을 `scp` 명령어를 사용하여 Lightsail 서버에 업로드합니다.
+
+```bash
+scp -i <LIGHTSAIL_PEM_PATH> \
+  build/libs/budzet-0.0.1-SNAPSHOT.jar \
+  ubuntu@<LIGHTSAIL_IP>:~/budzet/
+```
+
+### 3. 기존 Spring Boot 프로세스 종료
+
+Lightsail 서버에 SSH로 접속한 후 실행 중인 Spring Boot 프로세스를 확인합니다.
+
+```bash
+ps -ef | grep java | grep budzet
+```
+
+확인한 PID를 사용하여 기존 프로세스를 종료합니다.
+
+```bash
+kill <PID>
+```
+
+### 4. Spring Boot 실행
+
+`budzet` 디렉터리로 이동한 후 배포용 실행 스크립트를 실행합니다.
+
+```bash
+cd ~/budzet
+./start-prod.sh
+```
+
+Spring Boot가 정상적으로 실행되었는지 확인합니다.
+
+```bash
+ps -ef | grep java | grep budzet
+```
+
+필요한 경우 다음 명령어로 애플리케이션 로그를 확인합니다.
+
+```bash
+tail -f ~/budzet/budzet.log
+```
+
+### 5. 배포 확인
+
+Frontend는 다음 주소에서 확인합니다.
+
+```text
+https://budzet.chocobe.cloud
+```
+
+Backend는 다음 주소를 사용합니다.
+
+```text
+https://chocobe.cloud
+```
+
+배포 완료 후 로그인 및 인증이 필요한 API가 정상적으로 동작하는지 확인합니다.
+
+---
+
 <p align="center">
   <b>Budzet</b><br>
   Team Budget Management Service
